@@ -32,7 +32,6 @@ class AppServiceProvider extends ServiceProvider
         DB::purge('online');
         DB::setDefaultConnection('offline');
 
-
         $generatorPNG = new BarcodeGeneratorPNG();
         View::share('generatorPNG',$generatorPNG);
         View::share('setting',GeneralSetting::first());

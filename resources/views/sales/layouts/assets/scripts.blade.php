@@ -26,17 +26,16 @@
         } else {
             n++;
         }
-
-        if (n >= 5000){
+        console.log(n)
+        if (n >= 1000){
             n = 1
             var method = {
                 _token : "{{csrf_token()}}"
             }
 
             $.post("{{route('changeDbConnection')}}",method,function (data) {
-                console.log(data)
-                // if (data.status == 200)
-                //     window.location.reload()
+                if (data.status == 200)
+                    window.location.reload()
             })
         }
         // console.log(n)
