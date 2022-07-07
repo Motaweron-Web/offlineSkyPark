@@ -364,7 +364,10 @@ class ReservationController extends Controller
         })->get();
         $discounts = DiscountReason::all();
         $products = TicketRevProducts::where('rev_id',$id)->get();
-        $prices = $this->calcCapacity($rev->hours_count,$rev->shift_id);
+        $prices = VisitorTypes::where($rev->hours_count.'_hours','!=',0)
+            ->select('id as visitor_type_id',$rev->hours_count.'_hours as price')
+            ->get();
+
         return view('sales.updateReservation',compact('rev','add_by','discounts','prices','products','events','models','first_shift_start','types','random','categories'));
     }
 

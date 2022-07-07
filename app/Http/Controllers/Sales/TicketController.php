@@ -103,71 +103,11 @@ class TicketController extends Controller
             else {
                 // else then there is a count for new tickets and adjust response
                 $available = $capacity - $booked_count;
-                $shift = Shifts::where('id', $request->shift_id)->first();
                 $hours = $request->hours_count;
-                $shift_duration = strtotime($shift->to) - (strtotime($shift->from));
-                $shift_prices = ShiftDetails::where('shift_id', $request->shift_id)->select('visitor_type_id', 'price')->get();
-                // now check if wanted hours is less than shift time then do direct calculations
-                if ($hours <= $shift_duration / 3600) {
-                    foreach ($shift_prices as $price) {
-                        $price->price *= $hours;
-                    }
-                    return response()->json(['shift_prices' => $shift_prices, 'available' => $available, 'status' => true]);
-                } else {
-                    // do function
-                    $visitorTypes = VisitorTypes::latest()->get();
-                    $hoursCount = $request->hours_count;
-                    $newHoursCount = $request->hours_count;
-                    $minHorse = 0;
-
-                    $shift = Shifts::findOrFail($request->shift_id);
-                    $shifts = [];
-                    $prices = [];
-                    $pricesArray = [];
-                    $searchHourArray = [];
-                    foreach ($visitorTypes as $visitorType) {
-                        $pricesArray[$visitorType->id] = 0;
-                    }
-
-                    while ($newHoursCount > 0) {
-
-                        $from = strtotime(date('H', strtotime($shift->from)) . ":00");
-                        $to = strtotime(date('H', strtotime($shift->to)) . ":00");
-                        $difference = round(abs($to - $from) / 3600, 2);
-                        if ($hoursCount > $difference) {
-                            $searchHour = $difference;
-                        } else {
-                            $searchHour = $hoursCount;
-                        }
-
-                        if ($newHoursCount < $difference) {
-                            $searchHour = $newHoursCount;
-                        }
-
-
-                        foreach ($visitorTypes as $visitorType) {
-                            $findShiftDetails = ShiftDetails::where('shift_id', $shift->id)->where('visitor_type_id', $visitorType->id)->firstOrFail();
-                            $shifts[] = $findShiftDetails;
-                            $pricesArray[$visitorType->id] += $searchHour * $findShiftDetails->price;
-                        }
-                        $nextId = Shifts::whereTime('from', '>=', $shift->to)->max('id');
-                        $latestShift = $shift;
-                        $shift = Shifts::find($nextId);
-                        $newHoursCount = $newHoursCount - $searchHour;
-
-                        if (!$shift) {
-                            break;
-                        }
-                    }
-                    $shift_prices = [];
-                    foreach ($pricesArray as $key => $item) {
-                        $smallArray = [];
-                        $smallArray['visitor_type_id'] = $key;
-                        $smallArray['price'] = $item;
-                        $shift_prices[] = $smallArray;
-                    }
-                    return response()->json(['shift_prices' => $shift_prices, 'available' => $available, 'status' => true]);
-                }
+                $shift_prices = VisitorTypes::where($hours.'_hours','!=',0)
+                    ->select('id as visitor_type_id',$hours.'_hours as price')
+                    ->get();
+                return response()->json(['shift_prices' => $shift_prices, 'available' => $available, 'status' => true]);
             }
         }
     }
@@ -332,8 +272,8 @@ class TicketController extends Controller
             $smallArray =[];
             $smallArray[] = '<span class="text-success editSpan" style="cursor:pointer" data-id="'.$ticket->id.'">#'.$ticket->ticket_num."</span>";
             $smallArray[] = $ticket->visit_date;
-            $smallArray[] = $ticket->client->name;
-            $smallArray[] = $ticket->client->phone;
+            $smallArray[] = $ticket->client->name ?? $ticket->name;
+            $smallArray[] = $ticket->client->phone ?? $ticket->phone;
             $smallArray[] = (Carbon::parse($ticket->models[0]->shift_start)->format('h:s a')) ?? '';
             $smallArray[] = (Carbon::parse($ticket->models[0]->shift_end)->format('h:s a')) ?? '';
 //            $smallArray[] = date('h a', strtotime($ticket->shift->from)).":".date('h a', strtotime($ticket->shift->to));
@@ -341,7 +281,7 @@ class TicketController extends Controller
             $accessUrl    = route('familyAccess.index').'?search='.$ticket->ticket_num;
             $printUrl     = route('ticket.edit',$ticket->id);
             $editUrl      = route('updateTicket',$ticket->id);
-            $title        = $ticket->client->name." - ".$ticket->ticket_num;
+            $title        = ($ticket->client->name)??''." - ".$ticket->ticket_num;
             $editSpan     = null;
             $deleteSpan   = null;
             $accessSpan   = null;
@@ -406,7 +346,11 @@ class TicketController extends Controller
         })->get();
         $discounts = DiscountReason::all();
         $products = TicketRevProducts::where('ticket_id',$id)->get();
-        $prices = $this->getPrices($ticket->hours_count,$ticket->shift_id);
+//        $prices = $this->getPrices($ticket->hours_count,$ticket->shift_id);
+        $prices = [];
+        $prices = VisitorTypes::where($ticket->hours_count.'_hours','!=',0)
+            ->select('id as visitor_type_id',$ticket->hours_count.'_hours as price')
+            ->get();
         return view('sales.updateTicket',compact('ticket','rate','add_by','discounts','prices','products','models','types','categories'));
     }
 

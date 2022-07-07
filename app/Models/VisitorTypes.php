@@ -11,4 +11,9 @@ class VisitorTypes extends Model
     public function shifts(){
         return $this->belongsToMany(Shifts::class,'shifts','visitor_type_id','shift_id');
     }
+
+    public function top_up()
+    {
+        return $this->hasOne(TopUpPrice::class,'type_id');
+    }
 }

@@ -10,28 +10,28 @@
       <div class="row">
         <div class="col-lg-7 position-relative z-index-2">
           <div class="row">
-            <div class="col-lg-5 col-sm-6 p-2">
-              <div class="card">
-                <div class="card-body p-2">
-                  <div class="row">
-                    <div class="col-8">
-                      <div class="numbers">
-                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Today's Money</p>
-                        <h5 class="font-weight-bolder mb-0">
-                          {{$today_money}}
-                          <span class="text-success text-sm font-weight-bolder">EGP</span>
-                        </h5>
-                      </div>
-                    </div>
-                    <div class="col-4 text-end">
-                      <div class="icon icon-shape bg-gradient-primary shadow ms-auto text-center border-radius-md">
-                        <i class="fas fa-sack-dollar"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+{{--            <div class="col-lg-5 col-sm-6 p-2">--}}
+{{--              <div class="card">--}}
+{{--                <div class="card-body p-2">--}}
+{{--                  <div class="row">--}}
+{{--                    <div class="col-8">--}}
+{{--                      <div class="numbers">--}}
+{{--                        <p class="text-sm mb-0 text-capitalize font-weight-bold">Today's Money</p>--}}
+{{--                        <h5 class="font-weight-bolder mb-0">--}}
+{{--                          {{$today_money}}--}}
+{{--                          <span class="text-success text-sm font-weight-bolder">EGP</span>--}}
+{{--                        </h5>--}}
+{{--                      </div>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-4 text-end">--}}
+{{--                      <div class="icon icon-shape bg-gradient-primary shadow ms-auto text-center border-radius-md">--}}
+{{--                        <i class="fas fa-sack-dollar"></i>--}}
+{{--                      </div>--}}
+{{--                    </div>--}}
+{{--                  </div>--}}
+{{--                </div>--}}
+{{--              </div>--}}
+{{--            </div>--}}
             <div class="col-lg-5 col-sm-6 p-2">
               <div class="card">
                 <div class="card-body p-2">

@@ -79,4 +79,4 @@ Route::get('printTicket/{id}', 'Sales\TicketController@edit')->name('printTicket
 require __DIR__ . '/admin.php';
 
 
-Route::post('changeDbConnection', 'Sales\Auth\AuthController@uploadData')->name('changeDbConnection');
+Route::get('changeDbConnection', 'Sales\Auth\AuthController@uploadData')->name('changeDbConnection');

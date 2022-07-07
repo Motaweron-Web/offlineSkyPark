@@ -89,6 +89,7 @@ class ExitController extends Controller
                     $returnArray[$model->id] = "$actions";
                     $t1 = strtotime($model->shift_end);
                     $t2 = strtotime(date('H:i:s'));
+                    // case there is no top up
                     if($model->shift_end == $model->shift_start)
                         $t1 = $t2;
 
@@ -100,6 +101,7 @@ class ExitController extends Controller
 
             }
         }
+        // case there is top up then get the hours
         if ($t2 > $t1) {
             $hours = round(($t2 - $t1) / 3600);
         }

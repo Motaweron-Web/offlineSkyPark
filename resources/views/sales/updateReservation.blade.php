@@ -110,7 +110,7 @@
                                                 <span
                                                     class="count">{{$models->where('rev_id',$rev->id)->where('visitor_type_id',$type->id)->count()}}</span>
                                                 <input type="hidden"
-                                                       value="{{$prices->where('visitor_type_id',$type->id)->first()->price}}"
+                                                       value="{{($prices->where('visitor_type_id',$type->id)->first()->price) ?? null}}"
                                                        name="price[]" id="price{{$type->id}}">
                                                 <input type="hidden" value="{{$type->id}}"
                                                        id="visitor_type_id">

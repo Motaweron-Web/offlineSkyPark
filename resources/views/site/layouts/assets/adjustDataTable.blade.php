@@ -159,13 +159,15 @@
     table.clear();
 
     function appendRow(type_id, type, price) {
-        if (localStorage.getItem('available') > table.rows().count()) {
-            var row = table.row.add([
-                `<span data-type_id="${type_id}" id="visitor_type[]">${type}</span>`,
-                `<span data-price="${price}" id="visitor_price[]">${price}</span>`,
-                '<input type="text" class="form-control" placeholder="Name" name="visitor_name[]">',
-                '<input type="date" class="form-control" name="visitor_birthday[]" id="visitor_birthday[]">',
-                `<div class="choose">
+        if(price != 0 && price != null) {
+
+            if (localStorage.getItem('available') > table.rows().count()) {
+                var row = table.row.add([
+                    `<span data-type_id="${type_id}" id="visitor_type[]">${type}</span>`,
+                    `<span data-price="${price}" id="visitor_price[]">${price}</span>`,
+                    '<input type="text" class="form-control" placeholder="Name" name="visitor_name[]">',
+                    '<input type="date" class="form-control" name="visitor_birthday[]" id="visitor_birthday[]">',
+                    `<div class="choose">
                    <div class="genderOption">
                      <input type="radio" class="btn-check" name="gender${count}" id="option1${count}" value="male">
                      <label class=" mb-0 btn btn-outline" for="option1${count}"><span><i class="fas fa-male"></i></span></label>
@@ -179,16 +181,20 @@
                     <label class=" mb-0 btn btn-outline" for="option2${count}"><span><i class="fas fa-female"></i> </span></label>
                  </div>
                  </div>`,
-                `<span class="controlIcons">
+                    `<span class="controlIcons">
                      <span class="icon Delete" data-bs-toggle="tooltip" title="Delete" data-model_id="${type_id}"> <i
                       class="far fa-trash-alt"></i> </span>
                 </span>`
-            ]).draw().node();
-            count++;
-            $(row).addClass(type);
-            getCount(type, type_id)
-        } else {
-            toastr.error("The park is full")
+                ]).draw().node();
+                count++;
+                $(row).addClass(type);
+                getCount(type, type_id)
+            } else {
+                toastr.error("The park is full")
+            }
+        }
+        else{
+            toastr.error(`The ${type} Does not Has A Price For This Duration`)
         }
     }
 

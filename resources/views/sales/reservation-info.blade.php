@@ -36,9 +36,9 @@
                             <div class="row mt-3">
                                 <div class="col-sm-6 p-2">
                                     <label style="text-transform: initial !important;">Reservation Duration (h) </label>
-                                    <input class="form-control" type="number" name="duration" onchange="checkTime()"
-                                           id="duration" min="1" max="24"
-                                           onKeyUp="if(this.value>24){this.value='24';}else if(this.value<=0){this.value='1';}$('#durationError').text('')"/>
+                                    <input class="form-control" type="text" name="duration" onchange="checkTime()"
+                                           id="duration"
+                                           onKeyUp="if(this.value>5){this.value='5';}else if(this.value<=0){this.value='1';}$('#durationError').text('')"/>
                                     <label id="durationError" class="text-danger"></label>
                                 </div>
                                 <input class="form-control" type="hidden" id="date" value="{{$reservation->day}}"

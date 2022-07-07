@@ -10,7 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 class Admin extends Authenticatable
 {
     use HasRoles;
-    protected $connection = 'sqlite';
+//    protected $connection = 'sqlite';
 
 
     protected $guarded = [];

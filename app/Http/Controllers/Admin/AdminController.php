@@ -26,7 +26,7 @@ class AdminController extends Controller
     {
 
         if ($request->ajax()) {
-            DB::connection('mysql');
+//            DB::connection('mysql');
             $admins = Admin::latest()->get();
             return Datatables::of($admins)
                 ->addColumn('action', function ($admins) {

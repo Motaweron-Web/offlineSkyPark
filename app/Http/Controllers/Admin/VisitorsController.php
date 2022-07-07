@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ShiftDetails;
 use App\Models\Shifts;
+use App\Models\TopUpPrice;
 use App\Models\VisitorTypes;
 use App\Traits\PhotoTrait;
 use Illuminate\Http\Request;
@@ -47,29 +48,38 @@ class VisitorsController extends Controller
 
     public function create()
     {
-        $shifts = Shifts::all();
-        return view('Admin/visitors.parts.create',compact('shifts'));
+//        $shifts = Shifts::all();
+        return view('Admin/visitors.parts.create');
     }
 
     public function store(request $request)
     {
-        $inputs = $request->validate([
+        $request->validate([
             'photo'      => 'required|mimes:jpeg,jpg,png,gif',
             'title'      => 'required|max:255',
         ]);
+        $visitorData = $request->except('_token','top_1_hours','top_2_hours','top_3_hours','top_4_hours','top_5_hours');
         if($request->has('photo')){
             $file_name = $this->saveImage($request->photo,'assets/uploads/visitors');
-            $inputs['photo'] = 'assets/uploads/visitors/'.$file_name;
+            $visitorData['photo'] = 'assets/uploads/visitors/'.$file_name;
         }
-        $visitor = VisitorTypes::create($inputs);
+        $visitor = VisitorTypes::create($visitorData);
         if($visitor){
-            for($i = 0 ; $i < count($request->shifts_id); $i++){
-                ShiftDetails::create([
-                    'visitor_type_id' => $visitor->id,
-                    'shift_id' => $request->shifts_id[$i],
-                    'price'    => $request->price[$i],
-                ]);
-            }
+            TopUpPrice::create([
+                'type_id' => $visitor->id,
+                '1_hours' => $request->top_1_hours,
+                '2_hours' => $request->top_2_hours,
+                '3_hours' => $request->top_3_hours,
+                '4_hours' => $request->top_4_hours,
+                '5_hours' => $request->top_5_hours,
+            ]);
+//            for($i = 0 ; $i < count($request->shifts_id); $i++){
+//                ShiftDetails::create([
+//                    'visitor_type_id' => $visitor->id,
+//                    'shift_id' => $request->shifts_id[$i],
+//                    'price'    => $request->price[$i],
+//                ]);
+//            }
             return response()->json(['status'=>200]);
         }
         else
@@ -92,30 +102,55 @@ class VisitorsController extends Controller
     public function edit($id)
     {
         $visitor = VisitorTypes::findOrFail($id);
-        $details = ShiftDetails::where('visitor_type_id',$id)->get();
-        return view('Admin/visitors.parts.edit',compact('visitor','details'));
+//        $details = ShiftDetails::where('visitor_type_id',$id)->get();
+        return view('Admin/visitors.parts.edit',compact('visitor'));
     }
 
 
 
     public function update(Request $request)
     {
-        $inputs = $request->validate([
+        $request->validate([
             'id'         => 'required',
             'photo'      => 'nullable|mimes:jpeg,jpg,png,gif',
             'title'      => 'required|max:255',
         ]);
+        $visitorData = $request->except('_token','id','photo','top_1_hours','top_2_hours','top_3_hours','top_4_hours','top_5_hours');
         if($request->has('photo') && $request->photo != null){
             $file_name = $this->saveImage($request->photo,'assets/uploads/visitors');
-            $inputs['photo'] = 'assets/uploads/visitors/'.$file_name;
+            $visitorData['photo'] = 'assets/uploads/visitors/'.$file_name;
         }
         $visitor = VisitorTypes::findOrFail($request->id);
-        if($visitor->update($inputs)){
-            for($i = 0 ; $i < count($request->details_id); $i++){
-                $shift_details = ShiftDetails::findOrFail($request->details_id[$i]);
-                $shift_details->price = $request->price[$i];
-                $shift_details->save();
+        if($visitor->update($visitorData)){
+            if($request->top_1_hours != null && $request->top_2_hours != null && $request->top_3_hours != null && $request->top_4_hours != null && $request->top_5_hours != null){
+                $top_up = TopUpPrice::where('type_id',$visitor->id)->first();
+                if(!$top_up){
+                    TopUpPrice::create([
+                        'type_id' => $visitor->id,
+                        '1_hours' => $request->top_1_hours,
+                        '2_hours' => $request->top_2_hours,
+                        '3_hours' => $request->top_3_hours,
+                        '4_hours' => $request->top_4_hours,
+                        '5_hours' => $request->top_5_hours,
+                    ]);
+                }
+                else{
+                    $top_up->update([
+                        'type_id' => $visitor->id,
+                        '1_hours' => $request->top_1_hours,
+                        '2_hours' => $request->top_2_hours,
+                        '3_hours' => $request->top_3_hours,
+                        '4_hours' => $request->top_4_hours,
+                        '5_hours' => $request->top_5_hours,
+                    ]);
+                }
             }
+
+//            for($i = 0 ; $i < count($request->details_id); $i++){
+//                $shift_details = ShiftDetails::findOrFail($request->details_id[$i]);
+//                $shift_details->price = $request->price[$i];
+//                $shift_details->save();
+//            }
             return response()->json(['status'=>200]);
         }
         else

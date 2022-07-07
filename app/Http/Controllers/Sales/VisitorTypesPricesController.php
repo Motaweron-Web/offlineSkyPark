@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CapacityDays;
 use App\Models\ShiftDetails;
 use App\Models\Shifts;
+use App\Models\TopUpPrice;
 use App\Models\VisitorTypes;
 use Illuminate\Http\Request;
 
@@ -16,68 +17,75 @@ class VisitorTypesPricesController extends Controller{
         $date = $request->validate([
             'visit_date'    =>'required',
             'hours_count'   =>'required',
-            'shift_id'      =>'required|exists:shifts,id|exists:shift_details,shift_id',
+//            'shift_id'      =>'required|exists:shifts,id|exists:shift_details,shift_id',
             ]);
 
 
-        $visitorTypes = VisitorTypes::latest()->get();
-
-        $hoursCount = $request->hours_count;
-        $newHoursCount = $request->hours_count;
-
-        $shift = Shifts::findOrFail($request->shift_id);
-        $shifts = [];
-        $pricesArray = [];
-        foreach($visitorTypes as $visitorType){
-            $pricesArray[$visitorType->id] = 0;
+        $hoursCount    = $request->hours_count;
+        $newHoursCount = 0;
+        $visitorTypes  = VisitorTypes::latest()->get()->pluck('id');
+        foreach ($visitorTypes as $type){
+            $price = TopUpPrice::where('type_id',$type)->first();
+            if($price)
+                $pricesArray[$type] = ($price[$hoursCount.'_hours'] * $hoursCount);
+            else
+                $pricesArray[$type] = (65 * $hoursCount);
         }
-
-        $count = 0;
-
-
-
-        while ($newHoursCount > 0){
-
-            if ($count >= 100)
-            {
-                break;
-            }
-
-
-            $from = strtotime(date('H',strtotime($shift->from)).":00");
-            $to = strtotime(date('H',strtotime($shift->to)).":00");
-            $difference = round(abs($to - $from) / 3600,2);
-            if ($hoursCount > $difference){
-                $searchHour = $difference;
-            }else{
-                $searchHour = $hoursCount;
-            }
-
-            if ($newHoursCount < $difference){
-                $searchHour = $newHoursCount;
-            }
-
-
-            foreach($visitorTypes as $visitorType){
-                $findShiftDetails = ShiftDetails::where('shift_id',$shift->id)->where('visitor_type_id',$visitorType->id)->firstOrFail();
-                $shifts[] = $findShiftDetails;
-                $pricesArray[$visitorType->id] += $searchHour * $findShiftDetails->price;
-            }
-            $nextId = Shifts::where('id','>',$shift->id)->max('id');
-            $latestShift = $shift;
-
-            $shift = Shifts::find($nextId);
-
-
-
-            $newHoursCount = $newHoursCount - $searchHour;
-
-            if (!$shift){
-                break;
-            }
-            $count++;
-        }
-//        return $pricesArray;
+//
+//        $hoursCount    = $request->hours_count;
+//        $newHoursCount = $request->hours_count;
+//        $shift  = Shifts::findOrFail($request->shift_id);
+//        $shifts = [];
+////        $pricesArray = [];
+////        foreach($visitorTypes as $visitorType){
+////            $pricesArray[$visitorType->id] = 0;
+////        }
+//
+//        $count = 0;
+//
+//
+//
+//        while ($newHoursCount > 0){
+//
+//            if ($count >= 100)
+//            {
+//                break;
+//            }
+//
+//
+//            $from = strtotime(date('H',strtotime($shift->from)).":00");
+//            $to = strtotime(date('H',strtotime($shift->to)).":00");
+//            $difference = round(abs($to - $from) / 3600,2);
+//            if ($hoursCount > $difference){
+//                $searchHour = $difference;
+//            }else{
+//                $searchHour = $hoursCount;
+//            }
+//
+//            if ($newHoursCount < $difference){
+//                $searchHour = $newHoursCount;
+//            }
+//
+//
+//            foreach($visitorTypes as $visitorType){
+//                $findShiftDetails = ShiftDetails::where('shift_id',$shift->id)->where('visitor_type_id',$visitorType->id)->firstOrFail();
+//                $shifts[] = $findShiftDetails;
+////                $pricesArray[$visitorType->id] += $searchHour * $findShiftDetails->price;
+//            }
+//            $nextId = Shifts::where('id','>',$shift->id)->max('id');
+//            $latestShift = $shift;
+//
+//            $shift = Shifts::find($nextId);
+//
+//
+//
+//            $newHoursCount = $newHoursCount - $searchHour;
+//
+//            if (!$shift){
+//                break;
+//            }
+//            $count++;
+//        }
         return response()->json(['status'=>200,'array'=>$pricesArray,'latestHours'=>$newHoursCount]);
 
 

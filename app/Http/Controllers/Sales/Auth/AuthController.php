@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Sales\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bracelets;
+use App\Models\DiscountReason;
+use App\Models\Payment;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,10 +66,19 @@ class AuthController extends Controller
         $clients = \App\Models\Clients::where('uploaded', false)->get();
         $tickets = \App\Models\Ticket::where('uploaded', false)->with('models', 'products')->get();
         $reservations = \App\Models\Reservations::where('uploaded', false)->with('models', 'products')->get();
+        $discount_reasons = \App\Models\DiscountReason::where('uploaded', false)->get();
+//        $bracelets = \App\Models\Bracelets::where('uploaded', false)->get();
+        $products = \App\Models\Product::where('uploaded', false)->get();
+        $payments = \App\Models\Payment::where('uploaded', false)->get();
+
 
         \App\Models\Clients::where('uploaded', false)->update(['uploaded' => true]);
         \App\Models\Ticket::where('uploaded', false)->update(['uploaded' => true]);
         \App\Models\Reservations::where('uploaded', false)->update(['uploaded' => true]);
+        DiscountReason::where('uploaded', false)->update(['uploaded' => true]);
+//        Bracelets::where('uploaded', false)->update(['uploaded' => true]);
+        Product::where('uploaded', false)->update(['uploaded' => true]);
+        Payment::where('uploaded', false)->update(['uploaded' => true]);
         DB::purge('offline');
         DB::setDefaultConnection('online');
 
@@ -216,6 +229,35 @@ class AuthController extends Controller
                 $storeReservation->products()->create($smallProductReservation);
             }
 
+        }
+
+        foreach ($discount_reasons as $reason){
+            $storeReasonData = [];
+            $storeReasonData['desc']     = $reason->desc;
+            $storeReasonData['uploaded'] = 1;
+            DiscountReason::updateOrCreate($storeReasonData);
+        }
+
+        foreach ($products as $product){
+            $storeProductData = [];
+            $storeProductData['title']       = $product->title;
+            $storeProductData['category_id'] = $product->category_id;
+            $storeProductData['status']      = $product->status;
+            $storeProductData['vat']              = $product->vat;
+            $storeProductData['price_before_vat'] = $product->price_before_vat;
+            $storeProductData['price'] = $product->price;
+            $storeProductData['uploaded'] = 1;
+            Product::updateOrCreate($storeProductData);
+        }
+
+        foreach ($payments as $payment){
+            $storePaymentData = [];
+            $storePaymentData['rev_id']         = $payment->rev_id;
+            $storePaymentData['ticket_id']      = $payment->ticket_id;
+            $storePaymentData['payment_status'] = $payment->payment_status;
+            $storePaymentData['amount']         = $payment->amount;
+            $storePaymentData['uploaded']       = 1;
+            Payment::updateOrCreate($storePaymentData);
         }
 
 
