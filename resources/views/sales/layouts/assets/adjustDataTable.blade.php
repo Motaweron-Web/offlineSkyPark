@@ -159,7 +159,7 @@
     table.clear();
 
     function appendRow(type_id, type, price) {
-        if(price != 0 && price != null){
+        if(price != null){
             if (localStorage.getItem('available') > table.rows().count()) {
                 var row = table.row.add([
                     `<span data-type_id="${type_id}" id="visitor_type[]">${type}</span>`,

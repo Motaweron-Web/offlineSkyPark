@@ -7,6 +7,7 @@ use App\Models\Bracelets;
 use App\Models\DiscountReason;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\TopUpPrice;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -68,14 +69,16 @@ class AuthController extends Controller
         $reservations = \App\Models\Reservations::where('uploaded', false)->with('models', 'products')->get();
         $discount_reasons = \App\Models\DiscountReason::where('uploaded', false)->get();
 //        $bracelets = \App\Models\Bracelets::where('uploaded', false)->get();
-        $products = \App\Models\Product::where('uploaded', false)->get();
-        $payments = \App\Models\Payment::where('uploaded', false)->get();
+        $products   = \App\Models\Product::where('uploaded', false)->get();
+        $payments   = \App\Models\Payment::where('uploaded', false)->get();
+        $top_prices = \App\Models\TopUpPrice::where('uploaded', false)->get();
 
 
         \App\Models\Clients::where('uploaded', false)->update(['uploaded' => true]);
         \App\Models\Ticket::where('uploaded', false)->update(['uploaded' => true]);
         \App\Models\Reservations::where('uploaded', false)->update(['uploaded' => true]);
         DiscountReason::where('uploaded', false)->update(['uploaded' => true]);
+        TopUpPrice::where('uploaded', false)->update(['uploaded' => true]);
 //        Bracelets::where('uploaded', false)->update(['uploaded' => true]);
         Product::where('uploaded', false)->update(['uploaded' => true]);
         Payment::where('uploaded', false)->update(['uploaded' => true]);
@@ -236,6 +239,17 @@ class AuthController extends Controller
             $storeReasonData['desc']     = $reason->desc;
             $storeReasonData['uploaded'] = 1;
             DiscountReason::updateOrCreate($storeReasonData);
+        }
+        foreach ($top_prices as $price){
+            $storeData = [];
+            $storeData['type_id']  = $price->type_id;
+            $storeData['1_hours']  = $price['1_hours'];
+            $storeData['2_hours']  = $price['2_hours'];
+            $storeData['3_hours']  = $price['3_hours'];
+            $storeData['4_hours']  = $price['4_hours'];
+            $storeData['5_hours']  = $price['5_hours'];
+            $storeData['uploaded'] = 1;
+            TopUpPrice::updateOrCreate($storeData);
         }
 
         foreach ($products as $product){

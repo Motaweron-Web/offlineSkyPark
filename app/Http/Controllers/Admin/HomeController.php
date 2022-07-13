@@ -25,8 +25,8 @@ class HomeController extends Controller
         $exit_time             = date('Y-m-d').' '.GeneralSetting::first()->exit_time;
 //        $current_date          = date('Y-m-d H:i:s');
 //        if($exit_time < $current_date){
-            $tickets      = Ticket::where('visit_date','<',$exit_time)->get();
-            $reservations = Reservations::where('day','<',$exit_time)->get();
+        $tickets      = Ticket::where([['visit_date','<',$exit_time],['status','in']])->get();
+        $reservations = Reservations::where([['day','<',$exit_time],['status','in']])->get();
             foreach ($tickets as $ticket){
                 foreach ($ticket->models as $model){
                     $model->update([

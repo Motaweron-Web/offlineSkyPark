@@ -106,7 +106,7 @@ class ExitController extends Controller
             $hours = round(($t2 - $t1) / 3600);
         }
 
-
+//        return $models;
         if ($request->has('search'))
             count($models) ? '' : toastr()->warning('there is no data');
         return view('sales.exit', compact('ticket', 'returnArray','name', 'type','models', 'customId','phone', 'hours'));

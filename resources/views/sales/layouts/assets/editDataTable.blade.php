@@ -85,7 +85,7 @@
     var count = 1000;
 
     function appendRow(type_id, type, price) {
-        if(price != 0 && price != null) {
+        if(price != null) {
 
             if (localStorage.getItem('available') > table.rows().count()) {
                 var row = table.row.add([
